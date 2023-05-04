@@ -35,10 +35,6 @@ Add the following line to the dependencies section of your pom.xml file:
   	dependencies {
 	        implementation 'com.github.Leonardo-shitp:ParticleLetters:Tag'
 	}
-  
-Be sure to replace YourUsername with your GitHub username and 1.0.0 with the version of ParticleLetters you're using.
-
-Import the ParticleLettersAPI class in your plugin:
 
 **Copy code**
 
