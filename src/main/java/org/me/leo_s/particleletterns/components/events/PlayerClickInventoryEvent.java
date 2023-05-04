@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.me.leo_s.particleletterns.ParticleLetters;
+import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
 import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 import org.me.leo_s.particleletterns.components.text.TextParticle;
 import org.me.leo_s.particleletterns.components.text.TextSession;
@@ -58,7 +59,7 @@ public class PlayerClickInventoryEvent implements Listener {
 
                     if(session.allValuesCompleted(containsCharacterSpecial)) {
                         player.closeInventory();
-                        String text = session.getText().toUpperCase();
+                        String text = session.getText();
                         TextParticle preview;
 
                         try {
@@ -80,7 +81,7 @@ public class PlayerClickInventoryEvent implements Listener {
                         session.ready();
                         player.closeInventory();
                         player.sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7You have generated the text.")));
-                        player.sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7Show your files in &fplugins/ParticleLetters/texts/" + session.getText().replace(" ", "_") + ".json")));
+                        player.sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7Show your files in &fplugins/ParticleLetters/texts/" + MathsUtils.clearVanillaText(session.getText()) + ".json")));
                         plugin.removeTextSession(player);
                         plugin.removeEditing(player);
                     } catch (Exception e) {

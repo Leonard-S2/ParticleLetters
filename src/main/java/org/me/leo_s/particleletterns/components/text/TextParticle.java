@@ -62,7 +62,6 @@ public class TextParticle {
     public TextParticle(String text, int timePerLetter, double lengthLines, double spaceLetters) throws TextFormattedInvalid {
         if (!text.matches(".*&.*")) throw new TextFormattedInvalid(MathsUtils.color("&8[&cParticleLetters&8] &7The text must be formatted with the character &f&"));
         List<Letter> letters = new ArrayList<>();
-        Bukkit.getServer().getConsoleSender().sendMessage(text);
         char letterChar;
         Color currentColor = Color.BLACK;
         Letter letter;
@@ -146,7 +145,7 @@ public class TextParticle {
                 }
                 separation += this.spaceLetters;
                 double x = leftMost + separation;
-                locations.add(origin.clone().add(x, 0, 0));
+                locations.add(new Location(world, origin.getX() + x, origin.getY(), origin.getZ()));
             }
             return locations;
         } catch (Exception e) {
@@ -164,17 +163,16 @@ public class TextParticle {
     public void generateType(Location origin, char letter, int index){
         try {
             byte[][] pattern = lettersNeedInvert.contains(letter) ? invertLetter(letter) : getLetter(letter);
-
             Vector offset = new Vector(spaceLetters * index, 0, 0);
             Vector up = new Vector(0, lengthLines, 0);
-            Location location = origin.clone().add(offset);
+            origin.clone().add(offset);
+            Location location = new Location(world, origin.getX(), origin.getY(), origin.getZ()).add(offset).subtract(0.5, 0, 0.5);
 
             for (int i = 0; i < pattern.length; i++) {
                 for (int j = 0; j < pattern[i].length; j++) {
                     if (pattern[i][j] == 1) {
-                        Location particleLoc = location.clone().add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
-                        world.spawnParticle(Particle.REDSTONE, particleLoc.subtract(0.5, 0, 0.5), 3, 0, 0,
-                                0, 1, new Particle.DustOptions(text != null ? color : letters.get(index).getColor(), 3));
+                        Location particleLoc = new Location(world, location.getX(), location.getY(), location.getZ()).add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
+                        world.spawnParticle(Particle.REDSTONE, particleLoc, 3, 0, 0, 0, 1, new Particle.DustOptions(text != null ? color : letters.get(index).getColor(), 3));
                     }
                 }
             }
@@ -191,9 +189,14 @@ public class TextParticle {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        json.put("text", text);
+        if(text != null) {
+            json.put("text", text);
+            json.put("color", MathsUtils.colorToJson(color));
+        }else{
+            String letters = this.letters.stream().map(letter -> "&" + ColorValue.colorToChar(letter.getColor()) + letter.getLetter()).collect(Collectors.joining());
+            json.put("text", letters);
+        }
         json.put("timePerLetter", timePerLetter);
-        json.put("color", MathsUtils.colorToJson(color));
         json.put("lengthLines", lengthLines);
         json.put("spaceLetters", spaceLetters);
         return json;

@@ -72,4 +72,24 @@ public class ColorValue {
             default -> Color.BLACK;
         };
     }
+    public static String colorToChar(Color color) {
+        return switch (color.asRGB()) {
+            case 170 -> "1";
+            case 43520 -> "2";
+            case 43690 -> "3";
+            case 11141120 -> "4";
+            case 11141290 -> "5";
+            case 16755200 -> "6";
+            case 11184810 -> "7";
+            case 5592405 -> "8";
+            case 5592575 -> "9";
+            case 5635925 -> "A";
+            case 5636095 -> "B";
+            case 16733525 -> "C";
+            case 16733795 -> "D";
+            case 16777045 -> "E";
+            case 16777215 -> "F";
+            default -> "0";
+        };
+    }
 }

@@ -1,5 +1,6 @@
 package org.me.leo_s.particleletterns;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -85,7 +86,7 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
         if(!MathsUtils.isTextValid(text)){
             throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The text can only contain letters from A - Z and numbers from 0 - 9.");
         }
-        textSessions.put(player, new TextSession(text));
+        textSessions.put(player, new TextSession(text.toUpperCase()));
     }
     public void removeTextSession(Player player) {
         textSessions.remove(player);
@@ -121,6 +122,7 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
         return textParticles.get(name);
     }
     public void addTextParticle(String name, TextParticle textParticle) {
+        Bukkit.getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7The text §c" + name + " §7has been loaded.");
         textParticles.put(name, textParticle);
     }
 

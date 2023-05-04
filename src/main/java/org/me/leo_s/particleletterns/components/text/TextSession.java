@@ -3,6 +3,7 @@ package org.me.leo_s.particleletterns.components.text;
 import org.bukkit.Color;
 import org.json.simple.JSONObject;
 import org.me.leo_s.particleletterns.ParticleLetters;
+import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
 import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 
 import java.io.File;
@@ -75,14 +76,15 @@ public class TextSession {
         if(this.timePerLetter <= 0) {
             throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The time per letter must be §cgreater than 0§7.");
         }
-        if(this.color == null) {
+        if(!this.text.contains("&") && this.color == null) {
             throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The color must be §cnot null§7.");
         }
         if(this.lengthLines <= 0) {
             throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The length lines must be §cgreater than 0§7.");
         }
 
-        File file = new File("plugins/ParticleLetters/texts/" + this.text.replace(" ", "_") + ".json");
+        String nameClear = MathsUtils.clearVanillaText(this.text);
+        File file = new File("plugins/ParticleLetters/texts/" + nameClear + ".json");
         TextParticle textParticle;
 
         if (!text.contains("&")) textParticle = new TextParticle(this);
@@ -99,7 +101,7 @@ public class TextSession {
             jsonObject.writeJSONString(fileWriter);
             fileWriter.flush();
             fileWriter.close();
-            ParticleLetters.getInstance().addTextParticle(this.text, textParticle);
+            ParticleLetters.getInstance().addTextParticle(nameClear, textParticle);
         } catch (Exception e) {
             e.printStackTrace();
         }

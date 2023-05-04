@@ -33,14 +33,17 @@ public class MathsUtils {
             JSONObject jsonObject = (JSONObject) JSONValue.parseWithException(f);
             String text = (String) jsonObject.get("text");
             int timePerLetter = ((Long) jsonObject.get("timePerLetter")).intValue();
-            Color color = Color.deserialize((JSONObject) jsonObject.get("color"));
             double lengthLines = (double) jsonObject.get("lengthLines");
             double spaceLetters = (double) jsonObject.get("spaceLetters");
 
-            if(!text.contains("&")) return new TextParticle(text.toUpperCase(), timePerLetter, color, lengthLines, spaceLetters);
-            else return new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
+            if(!text.matches(".*&.*")) {
+                Color color = Color.deserialize((JSONObject) jsonObject.get("color"));
+                return new TextParticle(text.toUpperCase(), timePerLetter, color, lengthLines, spaceLetters);
+            }
+
+            return new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
         } catch (Exception e) {
-            Bukkit.getServer().getConsoleSender().sendMessage(Component.text(color("&8[&cParticleLetters&8] &cError loading text from JSON file: " + e.getMessage())));
+            Bukkit.getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &cError loading text from JSON file: " + e.getMessage()));
         }
         return null;
     }
@@ -59,4 +62,9 @@ public class MathsUtils {
         }
         return true;
     }
+
+    public static String clearVanillaText(String text) {
+        return text.replaceAll("&[A-Za-z0-9]", "").replaceAll(" ", "_");
+    }
+
 }

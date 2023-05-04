@@ -31,7 +31,7 @@ public class PlayerAsyncChatEvent implements Listener{
                 event.setCancelled(true);
                 try {
                     switch (editing) {
-                        case "text" -> {
+                        case "text" -> {;
                             plugin.addTextSession(player, message);
                             player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the text."));
                         }
