@@ -1,7 +1,6 @@
 package org.me.leo_s.particleletterns.components.commands.list;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.me.leo_s.particleletterns.components.commands.AbstractCommand;
 
@@ -17,10 +16,19 @@ public class CommandSpawnText extends AbstractCommand {
 
     @Override
     public void execute(Player player, String[] args) {
-        String text = args.length > 1 ? Arrays.stream(args).reduce((a, b) -> a + " " + b).orElse("") : args[0];
+        if(args.length == 0) return;
+        int y;
+        String text = null;
         try {
-            Bukkit.getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &7Generating text: &c" + text));
-            getPlugin().getTextParticle(text).generate(player.getLocation());
+            y = Integer.parseInt(args[0]);
+        }catch (Exception e){
+           y = -1;
+        }
+
+        try {
+            if (y != -1) text = args.length > 1 ? Arrays.stream(args).skip(1).reduce((a, b) -> a + " " + b).orElse("") : args[0];
+            else text = args.length > 1 ? Arrays.stream(args).reduce((a, b) -> a + " " + b).orElse("") : args[0];
+            getPlugin().getTextParticle(text).generate(player.getLocation().add(0, y, 0));
         } catch (Exception e) {
             player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Invalid text: &c" + text)));
         }

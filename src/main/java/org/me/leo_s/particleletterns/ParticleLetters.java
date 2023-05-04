@@ -1,6 +1,5 @@
 package org.me.leo_s.particleletterns;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -43,7 +42,6 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
         Objects.requireNonNull(getCommand("particleletters")).setExecutor(new CommandExtend());
         registerListeners(new PlayerAsyncChatEvent(), new PlayerClickInventoryEvent(),
         new PlayerPreviewEvent());
-
         loadTexts();
     }
 
@@ -62,16 +60,19 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
                     FileReader reader = new FileReader(f);
                     addTextParticle(name.replace("_", " "), MathsUtils.loadTextFromJson(reader));
                 } catch (Exception textFormattedInvalid) {
-                    getServer().getConsoleSender().sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7The text &6" + name + " &7could not be loaded.")));
+                    getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7The text §c" + name + " §7could not be loaded.");
                 }
             }
         }
-        getServer().getConsoleSender().sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7Loaded &6" + textParticles.size() + " &7texts.")));
+        getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7Loaded §c" + textParticles.size() + " §7texts.");
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        textParticles.clear();
+        textSessions.clear();
+        editing.clear();
     }
 
     private Map<Player, TextSession> getTextSessions() {
@@ -124,30 +125,38 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     }
 
     @Override
-    public void generateText(@NotNull String text, @NotNull Location origen, int timePerLetter, @NotNull String color, double lengthLines, double spaceLetters) {
+    public void generateTextFromColorString(@NotNull String text, @NotNull Location origen, int timePerLetter, @NotNull String color, double lengthLines, double spaceLetters) {
         try {
             if (MathsUtils.isTextValid(text)) {
                 Color color1 = ColorValue.fromStringBukkitColor(color);
-
-                TextParticle textParticle = new TextParticle(text, timePerLetter, color1, lengthLines, spaceLetters);
+                TextParticle textParticle;
+                if(!text.contains("&")) textParticle = new TextParticle(text.toUpperCase(), timePerLetter, color1, lengthLines, spaceLetters);
+                else textParticle = new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
                 textParticle.generate(origen);
             }
         } catch (TextFormattedInvalid e){
-            getServer().getConsoleSender().sendMessage(Component.text(e.getMessage()));
+            getServer().getConsoleSender().sendMessage(e.getMessage());
         }
     }
 
     @Override
-    public void generateText(@NotNull String text, @NotNull Location origen, int timePerLetter, int[] colorRGB, double lengthLines, double spaceLetters) {
+    public void generateTextFromColorRGB(@NotNull String text, @NotNull Location origen, int timePerLetter, int[] colorRGB, double lengthLines, double spaceLetters) {
         try {
             if (MathsUtils.isTextValid(text)) {
                 Color color1 = ColorValue.fromRGBBukkitColor(colorRGB);
-
-                TextParticle textParticle = new TextParticle(text, timePerLetter, color1, lengthLines, spaceLetters);
+                TextParticle textParticle = new TextParticle(text.toUpperCase(), timePerLetter, color1, lengthLines, spaceLetters);
                 textParticle.generate(origen);
             }
         } catch (TextFormattedInvalid e){
-            getServer().getConsoleSender().sendMessage(Component.text(e.getMessage()));
+            getServer().getConsoleSender().sendMessage(e.getMessage());
+        }
+    }
+
+    @Override
+    public void generateTextFromColorCharacters(@NotNull String text, @NotNull Location origen, int timePerLetter, double lengthLines, double spaceLetters) throws TextFormattedInvalid {
+        if (MathsUtils.isTextValid(text)) {
+            TextParticle textParticle = new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
+            textParticle.generate(origen);
         }
     }
 
@@ -164,5 +173,15 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     @Override
     public void removeTextParticle(@NotNull String name) {
         textParticles.remove(name);
+    }
+
+    @Override
+    public byte[][] getLetter(char letter) {
+        return TextParticle.getLetter(letter);
+    }
+
+    @Override
+    public byte[][] invertLetter(char letter) {
+        return TextParticle.invertLetter(letter);
     }
 }

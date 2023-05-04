@@ -83,7 +83,10 @@ public class TextSession {
         }
 
         File file = new File("plugins/ParticleLetters/texts/" + this.text.replace(" ", "_") + ".json");
-        TextParticle textParticle = new TextParticle(this);
+        TextParticle textParticle;
+
+        if (!text.contains("&")) textParticle = new TextParticle(this);
+        else textParticle = new TextParticle(text, timePerLetter, lengthLines, spaceLetters);
 
         try {
             if (file.exists()) {
@@ -102,8 +105,9 @@ public class TextSession {
         }
     }
 
-    public boolean allValuesCompleted() {
-        return this.text != null && this.timePerLetter > 0 && this.color != null && this.lengthLines > 0;
+    public boolean allValuesCompleted(boolean preview) {
+        if(preview) return this.text != null && this.timePerLetter > 0 && this.lengthLines > 0;
+        else return this.text != null && this.timePerLetter > 0 && this.color != null && this.lengthLines > 0;
     }
 
     public void stopPreview() {

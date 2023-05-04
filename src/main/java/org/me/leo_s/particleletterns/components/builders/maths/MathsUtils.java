@@ -37,7 +37,8 @@ public class MathsUtils {
             double lengthLines = (double) jsonObject.get("lengthLines");
             double spaceLetters = (double) jsonObject.get("spaceLetters");
 
-            return new TextParticle(text, timePerLetter, color, lengthLines, spaceLetters);
+            if(!text.contains("&")) return new TextParticle(text.toUpperCase(), timePerLetter, color, lengthLines, spaceLetters);
+            else return new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
         } catch (Exception e) {
             Bukkit.getServer().getConsoleSender().sendMessage(Component.text(color("&8[&cParticleLetters&8] &cError loading text from JSON file: " + e.getMessage())));
         }
@@ -53,8 +54,8 @@ public class MathsUtils {
     }
 
     public static boolean isTextValid(String text) throws TextFormattedInvalid {
-        if(!text.matches("^([A-Za-z0-9Ññ ]+)$")) {
-            throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The text can only contain letters from A - Z and numbers from 0 - 9.");
+        if(!text.matches("^([A-Za-z0-9Ññ& ]+)$")) {
+            throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The text can only contain letters from A - Z, numbers from 0 - 9 and the character &.");
         }
         return true;
     }

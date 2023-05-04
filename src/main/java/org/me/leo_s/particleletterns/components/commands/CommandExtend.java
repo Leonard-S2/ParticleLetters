@@ -31,7 +31,7 @@ public class CommandExtend implements CommandExecutor, TabExecutor {
                         String[] newArgs = Arrays.stream(args).skip(1).toArray(String[]::new);
                         if(!p.hasPermission(cmd.getPermission())){
                             p.sendMessage(Component.text("§8[§cParticleLetters§8] §cYou don't have permission to do this."));
-                            cmd.execute(p, args);
+                            return true;
                         }
 
                         if(cmd.getArgsLength() > 0 && newArgs.length != cmd.getArgsLength()){

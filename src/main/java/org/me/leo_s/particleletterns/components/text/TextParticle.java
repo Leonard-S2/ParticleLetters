@@ -1,24 +1,25 @@
 package org.me.leo_s.particleletterns.components.text;
 
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 import org.me.leo_s.particleletterns.ParticleLetters;
+import org.me.leo_s.particleletterns.components.builders.maths.ColorValue;
 import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
+import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "UnusedReturnValue"})
 public class TextParticle {
 
-    private final String text;
+    private String text;
+    private List<Letter> letters;
     private final int timePerLetter;
-    private final Color color;
+    private Color color;
     private final double lengthLines;
     private final double spaceLetters;
     private World world;
@@ -35,7 +36,7 @@ public class TextParticle {
      * @param spaceLetters The size that each space will have if the text has one
      */
     public TextParticle(String text, int timePerLetter, Color color, double lengthLines, double spaceLetters) {
-        this.text = text.toUpperCase();
+        this.text = text;
         infinite = timePerLetter == -1;
         this.timePerLetter = timePerLetter;
         this.color = color;
@@ -51,12 +52,59 @@ public class TextParticle {
         this.spaceLetters = textSession.getSpaceLetters();
     }
 
+    /**
+     * @param text The text to be generated
+     * @param timePerLetter The time it takes to display the text, in seconds
+     * @param lengthLines The length of the lines that make up the text
+     * @param spaceLetters The size that each space will have if the text has one
+     * @throws TextFormattedInvalid If the text not contains '&' character
+     */
+    public TextParticle(String text, int timePerLetter, double lengthLines, double spaceLetters) throws TextFormattedInvalid {
+        if (!text.matches(".*&.*")) throw new TextFormattedInvalid(MathsUtils.color("&8[&cParticleLetters&8] &7The text must be formatted with the character &f&"));
+        List<Letter> letters = new ArrayList<>();
+        Bukkit.getServer().getConsoleSender().sendMessage(text);
+        char letterChar;
+        Color currentColor = Color.BLACK;
+        Letter letter;
+        for (int i = 0; i < text.length(); i++) {
+            letterChar = text.charAt(i);
+            if (letterChar == ' ') {
+                i++;
+                continue;
+            }
+            if (letterChar == '&') {
+                if (i + 1 < text.length()) {
+                    char colorChar = text.charAt(i + 1);
+                    char l = text.charAt(i + 2);
+                    Color color = ColorValue.fromChar(colorChar);
+                    if (color != null) {
+                        i++;
+                        currentColor = color;
+                    }
+                    letter = new Letter(l, currentColor);
+                    letters.add(letter);
+                }
+            }
+        }
+
+        this.letters = letters;
+        infinite = timePerLetter == -1;
+        this.timePerLetter = timePerLetter;
+        this.lengthLines = lengthLines;
+        this.spaceLetters = spaceLetters;
+    }
+
     public TextParticle generate(Location origin){
         this.world = origin.getWorld();
         this.locations = getLocations(origin);
         if(task != null) task.cancel();
 
-        String txt = text.replace(" ", "");
+        String txt = text != null ? text.replace(" ", "") :
+                letters.stream()
+                        .map(Letter::getLetter)
+                        .filter(letter -> letter != ' ')
+                        .map(String::valueOf)
+                        .collect(Collectors.joining());
         task = new BukkitRunnable() {
             int timePerLetter = TextParticle.this.timePerLetter;
             @Override
@@ -81,14 +129,17 @@ public class TextParticle {
     /**
      * @return Returns the location that each letter will have including if it has a space next to it
      */
-    public List<Location> getLocations(Location origin){
+    public List<Location> getLocations(Location origin) {
         try {
             List<Location> locations = new ArrayList<>();
-            int separation = 0;
-            double totalWidth = text.replaceAll(" ", "").length() * spaceLetters;
+            double totalWidth;
+            if(text != null) totalWidth = 1 + (text.replaceAll(" ", "").length() * 5 + (spaceLetters * text.length()));
+            else totalWidth = 1 + (letters.stream().filter(a -> a.getLetter() != ' ').count() * 5 + (spaceLetters * letters.size()));
+
             double leftMost = totalWidth / -2;
-            for (int i = 0; i < text.length(); i++) {
-                char letter = text.charAt(i);
+            int separation = 0;
+            for (int i = 0; i < (text != null ? text.length() : letters.size()); i++) {
+                char letter = text != null ? text.charAt(i) : letters.get(i).getLetter();
                 if (letter == ' ') {
                     separation += this.spaceLetters;
                     continue;
@@ -98,19 +149,21 @@ public class TextParticle {
                 locations.add(origin.clone().add(x, 0, 0));
             }
             return locations;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
+
     /**
      * @param origin The point of origin where the letter will begin to be generated
      * @param letter The letter to be generated
+     * @param index It is used to determine the position of the letter in the word.
      */
     public void generateType(Location origin, char letter, int index){
         try {
-            byte[][] pattern = lettersNeedInvert.contains(letter) ? invertMatrix(getLetter(letter)) : getLetter(letter);
+            byte[][] pattern = lettersNeedInvert.contains(letter) ? invertLetter(letter) : getLetter(letter);
 
             Vector offset = new Vector(spaceLetters * index, 0, 0);
             Vector up = new Vector(0, lengthLines, 0);
@@ -120,7 +173,8 @@ public class TextParticle {
                 for (int j = 0; j < pattern[i].length; j++) {
                     if (pattern[i][j] == 1) {
                         Location particleLoc = location.clone().add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
-                        world.spawnParticle(Particle.REDSTONE, particleLoc.subtract(0.5, 0, 0.5), 3, 0, 0, 0, 1, new Particle.DustOptions(color, 3));
+                        world.spawnParticle(Particle.REDSTONE, particleLoc.subtract(0.5, 0, 0.5), 3, 0, 0,
+                                0, 1, new Particle.DustOptions(text != null ? color : letters.get(index).getColor(), 3));
                     }
                 }
             }
@@ -129,6 +183,55 @@ public class TextParticle {
         }
     }
 
+    public void cancelTask() {
+        if (task != null) {
+            task.cancel();
+        }
+    }
+
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        json.put("text", text);
+        json.put("timePerLetter", timePerLetter);
+        json.put("color", MathsUtils.colorToJson(color));
+        json.put("lengthLines", lengthLines);
+        json.put("spaceLetters", spaceLetters);
+        return json;
+    }
+
+    public static class Letter{
+
+        private final Character letter;
+        private final Color color;
+
+        public Letter(char letter, Color color){
+            this.letter = letter;
+            this.color = color;
+        }
+
+        public Character getLetter() {
+            return letter;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+    }
+
+    /**
+     * Inverts the matrix vertically.
+     *
+     * @param letter the letter to invert
+     * @return the inverted matrix
+     */
+    public static byte[][] invertLetter(char letter) {
+        byte[][] matrix = getLetter(letter);
+        byte[][] invertedMatrix = new byte[matrix.length][matrix[0].length];
+        for (int row = 0; row < matrix.length; row++) {
+            System.arraycopy(matrix[matrix.length - 1 - row], 0, invertedMatrix[row], 0, matrix[0].length);
+        }
+        return invertedMatrix;
+    }
     /**
      * @param letter The letter to be inverted
      * @return Returns the pattern of the letter
@@ -470,35 +573,5 @@ public class TextParticle {
             };
             default -> null;
         };
-    }
-
-    /**
-     * Inverts the matrix vertically.
-     *
-     * @param matrix the matrix to invert
-     * @return the inverted matrix
-     */
-    private byte[][] invertMatrix(byte[][] matrix) {
-        byte[][] invertedMatrix = new byte[matrix.length][matrix[0].length];
-        for (int row = 0; row < matrix.length; row++) {
-            System.arraycopy(matrix[matrix.length - 1 - row], 0, invertedMatrix[row], 0, matrix[0].length);
-        }
-        return invertedMatrix;
-    }
-
-    public void cancelTask() {
-        if (task != null) {
-            task.cancel();
-        }
-    }
-
-    public JSONObject toJson() {
-        JSONObject json = new JSONObject();
-        json.put("text", text);
-        json.put("timePerLetter", timePerLetter);
-        json.put("color", MathsUtils.colorToJson(color));
-        json.put("lengthLines", lengthLines);
-        json.put("spaceLetters", spaceLetters);
-        return json;
     }
 }

@@ -51,4 +51,25 @@ public class ColorValue {
     public static Color fromRGBBukkitColor(int[] colorRGB) {
         return Color.fromRGB(colorRGB[0], colorRGB[1], colorRGB[2]);
     }
+
+    public static Color fromChar(char letterChar) {
+        return switch (letterChar) {
+            case '1' -> Color.fromRGB(0, 0, 170);
+            case '2' -> Color.fromRGB(0, 170, 0);
+            case '3' -> Color.fromRGB(0, 170, 170);
+            case '4' -> Color.fromRGB(170, 0, 0);
+            case '5' -> Color.fromRGB(170, 0, 170);
+            case '6' -> Color.fromRGB(255, 170, 0);
+            case '7' -> Color.fromRGB(170, 170, 170);
+            case '8' -> Color.fromRGB(85, 85, 85);
+            case '9' -> Color.fromRGB(85, 85, 255);
+            case 'A' -> Color.fromRGB(85, 255, 85);
+            case 'B' -> Color.fromRGB(85, 255, 255);
+            case 'C' -> Color.fromRGB(255, 85, 85);
+            case 'D' -> Color.fromRGB(255, 85, 255);
+            case 'E' -> Color.fromRGB(255, 255, 85);
+            case 'F' -> Color.WHITE;
+            default -> Color.BLACK;
+        };
+    }
 }
