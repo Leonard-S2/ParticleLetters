@@ -1,4 +1,4 @@
-ParticleLetters API
+**ParticleLetters API**
 The ParticleLetters API is an API for the ParticleLetters Minecraft plugin, which allows you to generate letters in the form of particles. With this API, you can integrate the functionality of ParticleLetters into your own Minecraft plugins.
 
 How It Works
@@ -8,8 +8,7 @@ Make sure the ParticleLetters plugin is installed and enabled on your Minecraft 
 
 Add the following line to the dependencies section of your pom.xml file:
 
-php
-Copy code for Maven
+**Copy code for Maven**
 
 	<repositories>
 		<repository>
@@ -24,8 +23,7 @@ Copy code for Maven
 	    <version>Tag</version>
 	</dependency>
   
-php
-Copy code for Gradle
+**Copy code for Gradle**
 
   	allprojects {
 		repositories {
@@ -42,12 +40,11 @@ Be sure to replace YourUsername with your GitHub username and 1.0.0 with the ver
 
 Import the ParticleLettersAPI class in your plugin:
 
-java
-Copy code
+**Copy code**
 ParticleLettersAPI.generateText("Hello, world!", Location, 10, Color, 0.9, 2.9);
 This example will generate the message "Hello world!" in the "Location" location. The color of the particles will be "Color", with a duration of 10 seconds, the size of the lines will be 0.9 and the size of the spaces between the letters will be 2.9 if the message contains any space.
 
-Methods
+**Methods**
 ParticleLettersAPI.ParticleLettersAPI(String text, Location loc, int timePerLetter, String color, double lengthLines, double spaceLetters): generates letters in the form of particles at the specified coordinates.
 
     /**
@@ -58,8 +55,8 @@ ParticleLettersAPI.ParticleLettersAPI(String text, Location loc, int timePerLett
      * @param spaceLetters The size that each space will have if the text has one
      */
      
-Credits
-The ParticleLetters plugin and its API were developed by [your name or nickname]. If you have any questions, suggestions, or issues, please don't hesitate to contact me through [your email address or website].
+**Credits**
+The ParticleLetters plugin and its API were developed by [Leo_S]. If you have any questions, suggestions, or issues, please don't hesitate to contact me through [contactleonardsarica@gmail.com].
 
-License
+**License**
 The ParticleLetters plugin and its API are distributed under the MIT license. See the LICENSE.md file for more information.
