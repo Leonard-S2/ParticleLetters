@@ -26,6 +26,7 @@ Copy code for Maven
   
 php
 Copy code for Gradle
+
   	allprojects {
 		repositories {
 			...
@@ -43,22 +44,20 @@ Import the ParticleLettersAPI class in your plugin:
 
 java
 Copy code
-import com.github.YourUsername.particleletters.ParticleLettersAPI;
-Use the ParticleLettersAPI.sendParticleLetters() method to generate the letters in the form of particles:
-
-java
-Copy code
-ParticleLettersAPI.sendParticleLetters("Hello, world!", 0, 100, 0, 0.5f, 2, 0.2f);
-This example will generate the message "Hello, world!" in the air, 100 blocks high over the coordinates X=0, Z=0. The particle size will be 0.5f, the duration will be 2 seconds, and there will be a 0.2f space between each letter.
+ParticleLettersAPI.generateText("Hello, world!", Location, 10, Color, 0.9, 2.9);
+This example will generate the message "Hello world!" in the "Location" location. The color of the particles will be "Color", with a duration of 10 seconds, the size of the lines will be 0.9 and the size of the spaces between the letters will be 2.9 if the message contains any space.
 
 Methods
-ParticleLettersAPI.sendParticleLetters(String text, double x, double y, double z, float size, int duration, float space): generates letters in the form of particles at the specified coordinates.
+ParticleLettersAPI.ParticleLettersAPI(String text, Location loc, int timePerLetter, String color, double lengthLines, double spaceLetters): generates letters in the form of particles at the specified coordinates.
 
-text: the text that will be displayed in the form of particles.
-x, y, z: the coordinates where the particles will be displayed.
-size: the size of the particles.
-duration: the duration in seconds of the particles.
-space: the space between each letter.
+    /**
+     * @param text The text to be generated
+     * @param timePerLetter The time it takes to display the text, in seconds
+     * @param color The color of the text
+     * @param lengthLines The length of the lines that make up the text
+     * @param spaceLetters The size that each space will have if the text has one
+     */
+     
 Credits
 The ParticleLetters plugin and its API were developed by [your name or nickname]. If you have any questions, suggestions, or issues, please don't hesitate to contact me through [your email address or website].
 
