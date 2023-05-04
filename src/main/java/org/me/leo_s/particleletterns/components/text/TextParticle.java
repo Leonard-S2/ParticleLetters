@@ -1,11 +1,13 @@
 package org.me.leo_s.particleletterns.components.text;
 
-import org.bukkit.*;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 import org.me.leo_s.particleletterns.ParticleLetters;
-import org.me.leo_s.particleletterns.components.api.ParticleLettersAPI;
 import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
 
 import java.util.ArrayList;
@@ -107,7 +109,6 @@ public class TextParticle {
      * @param letter The letter to be generated
      */
     public void generateType(Location origin, char letter, int index){
-        ParticleLettersAPI api = ParticleLetters.getInstance();
         try {
             byte[][] pattern = lettersNeedInvert.contains(letter) ? invertMatrix(getLetter(letter)) : getLetter(letter);
 
