@@ -1,0 +1,9 @@
+name: ParticleLetters
+version: '${version}'
+main: org.me.leo_s.particleletterns.ParticleLetters
+api-version: 1.19
+commands:
+  particleletters:
+    description: ParticleLetters
+    usage: /<command> <text>
+    aliases: [parlet]
