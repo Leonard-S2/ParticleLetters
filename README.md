@@ -27,12 +27,10 @@ Add the following line to the dependencies section of your pom.xml file:
   
 **Copy code for Gradle**
 
-  	allprojects {
-		repositories {
+  	repositories {
 			...
 			maven { url 'https://jitpack.io' }
 		}
-	}
   
   	dependencies {
 	        implementation 'com.github.Leonardo-shitp:ParticleLetters:Tag'
