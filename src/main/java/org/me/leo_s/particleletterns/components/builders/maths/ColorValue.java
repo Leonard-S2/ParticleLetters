@@ -1,57 +1,11 @@
 package org.me.leo_s.particleletterns.components.builders.maths;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
+
+import static org.me.leo_s.particleletterns.components.FileOutput.DEBUG_MODE;
 
 public class ColorValue {
-    public static int[] fromStringBukkit(String color) throws TextFormattedInvalid {
-        return switch (color) {
-            case "RED" -> new int[]{255, 0, 0};
-            case "GREEN" -> new int[]{0, 255, 0};
-            case "BLUE" -> new int[]{0, 0, 255};
-            case "YELLOW" -> new int[]{255, 255, 0};
-            case "PURPLE" -> new int[]{255, 0, 255};
-            case "CYAN" -> new int[]{0, 255, 255};
-            case "WHITE" -> new int[]{255, 255, 255};
-            case "BLACK" -> new int[]{0, 0, 0};
-            case "ORANGE" -> new int[]{255, 128, 0};
-            case "PINK" -> new int[]{255, 0, 128};
-            case "LIME" -> new int[]{128, 255, 0};
-            case "LIGHT_BLUE" -> new int[]{0, 255, 128};
-            case "MAGENTA" -> new int[]{128, 0, 255};
-            case "LIGHT_GRAY" -> new int[]{128, 128, 128};
-            case "GRAY" -> new int[]{64, 64, 64};
-            case "BROWN" -> new int[]{128, 64, 0};
-            default -> throw new TextFormattedInvalid("§7The color must be §cRED, GREEN, BLUE, YELLOW, PURPLE, CYAN, WHITE, BLACK, ORANGE, PINK, LIME, LIGHT_BLUE, MAGENTA, LIGHT_GRAY, GRAY or BROWN§7.");
-        };
-    }
-
-    public static Color fromStringBukkitColor(String color) throws TextFormattedInvalid {
-        return switch (color) {
-            case "RED" -> Color.RED;
-            case "GREEN" -> Color.GREEN;
-            case "BLUE" -> Color.BLUE;
-            case "YELLOW" -> Color.YELLOW;
-            case "PURPLE" -> Color.PURPLE;
-            case "CYAN" -> Color.AQUA;
-            case "WHITE" -> Color.WHITE;
-            case "BLACK" -> Color.BLACK;
-            case "ORANGE" -> Color.fromRGB(255, 128, 0);
-            case "PINK" -> Color.fromRGB(255, 0, 128);
-            case "LIME" -> Color.fromRGB(128, 255, 0);
-            case "LIGHT_BLUE" -> Color.fromRGB(0, 255, 128);
-            case "MAGENTA" -> Color.fromRGB(128, 0, 255);
-            case "LIGHT_GRAY" -> Color.fromRGB(128, 128, 128);
-            case "GRAY" -> Color.fromRGB(64, 64, 64);
-            case "BROWN" -> Color.fromRGB(128, 64, 0);
-            default -> throw new TextFormattedInvalid("§7The color must be §cRED, GREEN, BLUE, YELLOW, PURPLE, CYAN, WHITE, BLACK, ORANGE, PINK, LIME, LIGHT_BLUE, MAGENTA, LIGHT_GRAY, GRAY or BROWN§7.");
-        };
-    }
-
-    public static Color fromRGBBukkitColor(int[] colorRGB) {
-        return Color.fromRGB(colorRGB[0], colorRGB[1], colorRGB[2]);
-    }
-
     public static Color fromChar(char letterChar) {
         return switch (letterChar) {
             case '1' -> Color.fromRGB(0, 0, 170);
@@ -91,5 +45,14 @@ public class ColorValue {
             case 16777215 -> "F";
             default -> "0";
         };
+    }
+    public static Color fromHex(String ColorScheme) {
+        float[] rgb = java.awt.Color.decode("#" + ColorScheme).getRGBColorComponents(null);
+        if(DEBUG_MODE) {
+            Bukkit.getServer().getConsoleSender().sendMessage("§7[§cParticleDebug§7] §7ColorScheme: §f" + ColorScheme);
+            Bukkit.getServer().getConsoleSender().sendMessage("§7[§cParticleDebug§7] §7RGB: §f" + (int) (rgb[0] * 255) + " " + (int) (rgb[1] * 255) + " " + (int) (rgb[2] * 255));
+            Bukkit.getServer().getConsoleSender().sendMessage("§7[§cParticleDebug§7] §7Color: §f" + Color.fromRGB((int) (rgb[0] * 255), (int) (rgb[1] * 255), (int) (rgb[2] * 255)));
+        }
+        return Color.fromRGB((int) (rgb[0] * 255), (int) (rgb[1] * 255), (int) (rgb[2] * 255));
     }
 }

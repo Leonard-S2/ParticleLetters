@@ -8,10 +8,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.me.leo_s.particleletterns.ParticleLetters;
 import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
-import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 import org.me.leo_s.particleletterns.components.text.TextParticle;
 import org.me.leo_s.particleletterns.components.text.TextSession;
 
+import static org.me.leo_s.particleletterns.components.FileOutput.*;
 import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
 public class PlayerClickInventoryEvent implements Listener {
@@ -29,58 +29,42 @@ public class PlayerClickInventoryEvent implements Listener {
                 case 49 -> player.closeInventory();
                 case 11 -> {
                     player.closeInventory();
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please type the new text in chat.")));
+                    player.sendMessage(Component.text(color(EDITOR_SEND_TEXT)));
                     plugin.setEditing(player, "text");
                 }
                 case 12 -> {
                     player.closeInventory();
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please type the new duration in chat.")));
+                    player.sendMessage(Component.text(color(EDITOR_SEND_DURATION)));
                     plugin.setEditing(player, "duration");
                 }
                 case 13 -> {
                     player.closeInventory();
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please type the new color in chat.")));
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Colors: &fRED, GREEN, BLUE, YELLOW, PURPLE, CYAN, WHITE, BLACK, ORANGE, PINK, LIME, LIGHT_BLUE, MAGENTA, LIGHT_GRAY, GRAY or BROWN&7.")));
-                    plugin.setEditing(player, "color");
+                    player.sendMessage(Component.text(color(EDITOR_SEND_LINES)));
+                    plugin.setEditing(player, "lines");
                 }
                 case 14 -> {
                     player.closeInventory();
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please type the new lines in chat.")));
-                    plugin.setEditing(player, "lines");
-                }
-                case 15 -> {
-                    player.closeInventory();
-                    player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please type the new spacing in chat.")));
+                    player.sendMessage(Component.text(color(EDITOR_SEND_SPACING)));
                     plugin.setEditing(player, "spacing");
                 }
                 case 30 -> {
                     plugin.setEditing(player, "preview");
-                    boolean containsCharacterSpecial = session.getText().contains("&");
 
-                    if(session.allValuesCompleted(containsCharacterSpecial)) {
+                    if(session.allValuesCompleted()) {
                         player.closeInventory();
-                        String text = session.getText();
-                        TextParticle preview;
-
-                        try {
-                            if (!containsCharacterSpecial) preview = new TextParticle(text, -1, session.getColor(), session.getLengthLines(), session.getSpaceLetters());
-                            else preview = new TextParticle(text, -1, session.getLengthLines(), session.getSpaceLetters());
-
-                            session.setPreview(preview);
-                            session.getPreview().generate(player.getLocation().add(0, 6, 0));
-                            player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &aHit to cancel preview.")));
-                        } catch (TextFormattedInvalid e) {
-                            player.sendMessage(e.getMessage());
-                        }
+                        TextParticle preview = new TextParticle(session.getText(), -1, session.getLengthLines(), session.getSpaceLetters());
+                        session.setPreview(preview);
+                        session.getPreview().generate(player.getLocation().add(0, 6, 0));
+                        player.sendMessage(Component.text(color(PREVIEW_CANCEL)));
                     } else {
-                        player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Please complete all the values before previewing.")));
+                        player.sendMessage(Component.text(color(PREVIEW_NO_COMPLETE_ALL_VALUES)));
                     }
                 }
                 case 31 -> {
                     try {
                         session.ready();
                         player.closeInventory();
-                        player.sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7You have generated the text.")));
+                        player.sendMessage(Component.text(color(TEXT_GENERATED)));
                         player.sendMessage(Component.text(color("&8[&6ParticleLetters&8] &7Show your files in &fplugins/ParticleLetters/texts/" + MathsUtils.clearVanillaText(session.getText()) + ".json")));
                         plugin.removeTextSession(player);
                         plugin.removeEditing(player);

@@ -1,0 +1,27 @@
+prefix: '&8[&cParticleLetters&8] &7'
+invalid-text: '&7Invalid text: &c%text%'
+spawned-text: '&7Spawned text: &c%text%'
+command-no-permission: '&cYou do not have permission to use this command.'
+command-invalid-arguments: '&cInvalid arguments'
+command-no-existing-text: '&cThis command does not exist.'
+command-0-arguments: '&cUsage: /particleletters <args>'
+editor:
+  cancel: '&7You have canceled the edit.'
+  text: '&7You have edited the text.'
+  duration: '&7You have edited the duration.'
+  color: '&7You have edited the color.'
+  lines: '&7You have edited the lines.'
+  spacing: '&7You have edited the spacing.'
+  send-text: '&7Please type the new text in chat.'
+  send-duration: '&7Please type the new duration in chat.'
+  send-color: '&7Please type the new color in chat.'
+  send-colors: '&7Colors: &fRED, GREEN, BLUE, YELLOW, PURPLE, CYAN, WHITE, BLACK, ORANGE, PINK, LIME, LIGHT_BLUE, MAGENTA, LIGHT_GRAY, GRAY or BROWN&7 or use &f"&" &7.'
+  send-lines: '&7Please type the new lines in chat.'
+  send-spacing: '&7Please type the new spacing in chat.'
+  cancel-preview: '&aHit to cancel preview.'
+  cancelled-preview: '&7You have stopped the preview.'
+  no-complete-all-values: '&7Please complete all the values before previewing.'
+  text-generated: '&7You have generated the text.'
+
+config:
+  debug-mode: false

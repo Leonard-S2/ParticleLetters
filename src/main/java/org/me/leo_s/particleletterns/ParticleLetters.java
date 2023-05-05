@@ -1,14 +1,11 @@
 package org.me.leo_s.particleletterns;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.me.leo_s.particleletterns.components.api.ParticleLettersAPI;
-import org.me.leo_s.particleletterns.components.builders.maths.ColorValue;
 import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
 import org.me.leo_s.particleletterns.components.commands.CommandExtend;
 import org.me.leo_s.particleletterns.components.events.PlayerAsyncChatEvent;
@@ -22,9 +19,11 @@ import org.me.leo_s.particleletterns.components.text.TextSession;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.me.leo_s.particleletterns.components.FileOutput.loadFileOutput;
 import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
 @SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
@@ -44,6 +43,7 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
         registerListeners(new PlayerAsyncChatEvent(), new PlayerClickInventoryEvent(),
         new PlayerPreviewEvent());
         loadTexts();
+        loadFileOutput(true);
     }
 
     private void loadTexts() {
@@ -79,12 +79,13 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     private Map<Player, TextSession> getTextSessions() {
         return textSessions;
     }
+
     public static ParticleLetters getInstance() {
         return instance;
     }
     public void addTextSession(Player player, String text) throws TextFormattedInvalid {
         if(!MathsUtils.isTextValid(text)){
-            throw new TextFormattedInvalid("§8[§cParticleLetters§8] §7The text can only contain letters from A - Z and numbers from 0 - 9.");
+            throw new TextFormattedInvalid("&7The text can only contain letters from &cA - Z&7, numbers from &c0 - 9&7 and the character &c& or #&7.");
         }
         textSessions.put(player, new TextSession(text.toUpperCase()));
     }
@@ -118,47 +119,25 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     public Map<String, TextParticle> getTextParticles() {
         return textParticles;
     }
-    public TextParticle getTextParticle(String name) {
+
+    @Override
+    public TextParticle getTextParticle(@NotNull String name) {
         return textParticles.get(name);
     }
     public void addTextParticle(String name, TextParticle textParticle) {
-        Bukkit.getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7The text §c" + name + " §7has been loaded.");
         textParticles.put(name, textParticle);
     }
 
     @Override
-    public void generateTextFromColorString(@NotNull String text, @NotNull Location origen, int timePerLetter, @NotNull String color, double lengthLines, double spaceLetters) {
+    public void generateTextFromColorString(@NotNull String text, @NotNull Location origen, int timePerLetter, double lengthLines, double spaceLetters) {
         try {
             if (MathsUtils.isTextValid(text)) {
-                Color color1 = ColorValue.fromStringBukkitColor(color);
-                TextParticle textParticle;
-                if(!text.contains("&")) textParticle = new TextParticle(text.toUpperCase(), timePerLetter, color1, lengthLines, spaceLetters);
-                else textParticle = new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
+                List<TextParticle.Letter> letters = MathsUtils.getLettersForEachImpl(text);
+                TextParticle textParticle = new TextParticle(text, timePerLetter, lengthLines, spaceLetters);
                 textParticle.generate(origen);
             }
         } catch (TextFormattedInvalid e){
-            getServer().getConsoleSender().sendMessage(e.getMessage());
-        }
-    }
-
-    @Override
-    public void generateTextFromColorRGB(@NotNull String text, @NotNull Location origen, int timePerLetter, int[] colorRGB, double lengthLines, double spaceLetters) {
-        try {
-            if (MathsUtils.isTextValid(text)) {
-                Color color1 = ColorValue.fromRGBBukkitColor(colorRGB);
-                TextParticle textParticle = new TextParticle(text.toUpperCase(), timePerLetter, color1, lengthLines, spaceLetters);
-                textParticle.generate(origen);
-            }
-        } catch (TextFormattedInvalid e){
-            getServer().getConsoleSender().sendMessage(e.getMessage());
-        }
-    }
-
-    @Override
-    public void generateTextFromColorCharacters(@NotNull String text, @NotNull Location origen, int timePerLetter, double lengthLines, double spaceLetters) throws TextFormattedInvalid {
-        if (MathsUtils.isTextValid(text)) {
-            TextParticle textParticle = new TextParticle(text.toUpperCase(), timePerLetter, lengthLines, spaceLetters);
-            textParticle.generate(origen);
+            getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] " + e.getMessage()));
         }
     }
 

@@ -9,11 +9,15 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.me.leo_s.particleletterns.components.commands.list.CommandGenerateText;
+import org.me.leo_s.particleletterns.components.commands.list.CommandReload;
 import org.me.leo_s.particleletterns.components.commands.list.CommandSpawnText;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.me.leo_s.particleletterns.components.FileOutput.*;
+import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
 public class CommandExtend implements CommandExecutor, TabExecutor {
     private final List<AbstractCommand> commands = new ArrayList<>();
@@ -21,6 +25,7 @@ public class CommandExtend implements CommandExecutor, TabExecutor {
     public CommandExtend() {
         commands.add(new CommandGenerateText());
         commands.add(new CommandSpawnText());
+        commands.add(new CommandReload());
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -30,12 +35,12 @@ public class CommandExtend implements CommandExecutor, TabExecutor {
                     if(cmd.getName().equalsIgnoreCase(args[0])){
                         String[] newArgs = Arrays.stream(args).skip(1).toArray(String[]::new);
                         if(!p.hasPermission(cmd.getPermission())){
-                            p.sendMessage(Component.text("§8[§cParticleLetters§8] §cYou don't have permission to do this."));
+                            p.sendMessage(Component.text(color(COMMAND_NO_PERMISSION)));
                             return true;
                         }
 
                         if(cmd.getArgsLength() > 0 && newArgs.length != cmd.getArgsLength()){
-                            p.sendMessage(Component.text("§8[§cParticleLetters§8] §cInvalid arguments."));
+                            p.sendMessage(Component.text(color(COMMAND_INVALID_ARGUMENTS)));
                             return true;
                         }
 
@@ -43,9 +48,9 @@ public class CommandExtend implements CommandExecutor, TabExecutor {
                         return true;
                     }
                 }
-                p.sendMessage(Component.text("§8[§cParticleLetters§8] §cThis command doesn't exist."));
+                p.sendMessage(Component.text(color(COMMAND_NO_EXIST)));
             }else{
-                p.sendMessage(Component.text("§8[§cParticleLetters§8] §cUse /particleletters <command>"));
+                p.sendMessage(Component.text(color(COMMAND_0_ARGUMENTS)));
             }
         }
         return true;

@@ -7,6 +7,8 @@ import org.me.leo_s.particleletterns.components.commands.AbstractCommand;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.me.leo_s.particleletterns.components.FileOutput.INVALID_TEXT;
+import static org.me.leo_s.particleletterns.components.FileOutput.SPAWNED_TEXT;
 import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
 public class CommandSpawnText extends AbstractCommand {
@@ -18,7 +20,7 @@ public class CommandSpawnText extends AbstractCommand {
     public void execute(Player player, String[] args) {
         if(args.length == 0) return;
         int y;
-        String text = null;
+        String text;
         try {
             y = Integer.parseInt(args[0]);
         }catch (Exception e){
@@ -29,8 +31,9 @@ public class CommandSpawnText extends AbstractCommand {
             if (y != -1) text = args.length > 1 ? Arrays.stream(args).skip(1).reduce((a, b) -> a + " " + b).orElse("") : args[0];
             else text = args.length > 1 ? Arrays.stream(args).reduce((a, b) -> a + " " + b).orElse("") : args[0];
             getPlugin().getTextParticle(text).generate(player.getLocation().add(0, y, 0));
+            player.sendMessage(Component.text(color(SPAWNED_TEXT.replace("%text%", text))));
         } catch (Exception e) {
-            player.sendMessage(Component.text(color("&8[&cParticleLetters&8] &7Invalid text: &c" + text)));
+            player.sendMessage(Component.text(color(INVALID_TEXT.replace("%text%", args[0]))));
         }
     }
 

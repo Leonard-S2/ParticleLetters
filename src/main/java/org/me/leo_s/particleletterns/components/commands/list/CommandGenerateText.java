@@ -7,6 +7,8 @@ import org.me.leo_s.particleletterns.components.commands.AbstractCommand;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
+
 public class CommandGenerateText extends AbstractCommand {
     public CommandGenerateText() {
         super("text", "particleletterns.text", -1);
@@ -19,7 +21,7 @@ public class CommandGenerateText extends AbstractCommand {
             getPlugin().addTextSession(player, text);
             getPlugin().getEditorTextInterface().open(player, getPlugin().getTextSession(player));
         } catch (Exception e) {
-            player.sendMessage(Component.text(e.getMessage()));
+            player.sendMessage(Component.text(color("&8[&cParticleLetters&8] " + e.getMessage())));
         }
     }
 

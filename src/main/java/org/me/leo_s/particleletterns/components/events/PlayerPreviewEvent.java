@@ -9,6 +9,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.me.leo_s.particleletterns.ParticleLetters;
 import org.me.leo_s.particleletterns.components.text.TextSession;
 
+import static org.me.leo_s.particleletterns.components.FileOutput.PREVIEW_CANCELLED;
+import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
+
 public class PlayerPreviewEvent implements Listener {
 
     private final ParticleLetters plugin = ParticleLetters.getInstance();
@@ -26,7 +29,7 @@ public class PlayerPreviewEvent implements Listener {
                     TextSession textSession = plugin.getTextSession(player);
 
                     plugin.removeEditing(player);
-                    player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have stopped the preview."));
+                    player.sendMessage(Component.text(color(PREVIEW_CANCELLED)));
                     textSession.stopPreview();
                     plugin.getEditorTextInterface().open(player, textSession);
                 }

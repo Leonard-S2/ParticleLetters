@@ -7,87 +7,48 @@ import org.json.simple.JSONObject;
 import org.me.leo_s.particleletterns.ParticleLetters;
 import org.me.leo_s.particleletterns.components.builders.maths.ColorValue;
 import org.me.leo_s.particleletterns.components.builders.maths.MathsUtils;
-import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.me.leo_s.particleletterns.components.FileOutput.DEBUG_MODE;
+import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
+
 @SuppressWarnings({"unchecked", "UnusedReturnValue"})
 public class TextParticle {
 
-    private String text;
-    private List<Letter> letters;
+    private final List<Letter> letters;
+    private final List<Letter> lettersNotSpaces;
     private final int timePerLetter;
-    private Color color;
     private final double lengthLines;
     private final double spaceLetters;
     private World world;
     private final List<Character> lettersNeedInvert = List.of('A', 'B', 'D', 'F', 'G', 'J', 'L', 'M', 'N', 'Ñ', 'O', 'P', 'Q', 'R', 'T', 'U', 'V', 'Y', 'W', 'X', '1' , '2', '4', '5', '6', '7', '9');
     private List<Location>  locations;
     private BukkitRunnable task;
-    private boolean infinite = false;
+    private final boolean infinite;
 
     /**
-     * @param text The text to be generated
-     * @param timePerLetter The time it takes to display the text, in seconds
-     * @param color The color of the text
-     * @param lengthLines The length of the lines that make up the text
-     * @param spaceLetters The size that each space will have if the text has one
-     */
-    public TextParticle(String text, int timePerLetter, Color color, double lengthLines, double spaceLetters) {
-        this.text = text;
-        infinite = timePerLetter == -1;
-        this.timePerLetter = timePerLetter;
-        this.color = color;
-        this.lengthLines = lengthLines;
-        this.spaceLetters = spaceLetters;
-    }
-
-    public TextParticle(TextSession textSession){
-        this.text = textSession.getText().toUpperCase();
-        this.timePerLetter = textSession.getTimePerLetter();
-        this.color = textSession.getColor();
-        this.lengthLines = textSession.getLengthLines();
-        this.spaceLetters = textSession.getSpaceLetters();
-    }
-
-    /**
-     * @param text The text to be generated
+     * @param text The text to be displayed
      * @param timePerLetter The time it takes to display the text, in seconds
      * @param lengthLines The length of the lines that make up the text
      * @param spaceLetters The size that each space will have if the text has one
-     * @throws TextFormattedInvalid If the text not contains '&' character
+     * <p>
+     * <p>
+     * <p>
+     * Other parameters are not required:
+     * <p>
+     * {@code "lettersNotSpaces"} - The letters that make up the text without spaces
+     * <p>
+     * <p
+     * {@code "infinite"} - If the {@code "timePerLetter"} is -1, the text will be displayed infinitely
+     * <p>
      */
-    public TextParticle(String text, int timePerLetter, double lengthLines, double spaceLetters) throws TextFormattedInvalid {
-        if (!text.matches(".*&.*")) throw new TextFormattedInvalid(MathsUtils.color("&8[&cParticleLetters&8] &7The text must be formatted with the character &f&"));
-        List<Letter> letters = new ArrayList<>();
-        char letterChar;
-        Color currentColor = Color.BLACK;
-        Letter letter;
-        for (int i = 0; i < text.length(); i++) {
-            letterChar = text.charAt(i);
-            if (letterChar == ' ') {
-                i++;
-                continue;
-            }
-            if (letterChar == '&') {
-                if (i + 1 < text.length()) {
-                    char colorChar = text.charAt(i + 1);
-                    char l = text.charAt(i + 2);
-                    Color color = ColorValue.fromChar(colorChar);
-                    if (color != null) {
-                        i++;
-                        currentColor = color;
-                    }
-                    letter = new Letter(l, currentColor);
-                    letters.add(letter);
-                }
-            }
-        }
-
-        this.letters = letters;
-        infinite = timePerLetter == -1;
+    public TextParticle(String text, int timePerLetter, double lengthLines, double spaceLetters) {
+        this.letters = MathsUtils.getLettersForEachImpl(text);
+        this.lettersNotSpaces = letters.stream().filter(letter -> letter.getLetter() != ' ').collect(Collectors.toList());
+        this.infinite = timePerLetter == -1;
         this.timePerLetter = timePerLetter;
         this.lengthLines = lengthLines;
         this.spaceLetters = spaceLetters;
@@ -98,8 +59,7 @@ public class TextParticle {
         this.locations = getLocations(origin);
         if(task != null) task.cancel();
 
-        String txt = text != null ? text.replace(" ", "") :
-                letters.stream()
+        String txt = letters.stream()
                         .map(Letter::getLetter)
                         .filter(letter -> letter != ' ')
                         .map(String::valueOf)
@@ -116,6 +76,9 @@ public class TextParticle {
                 for(Location location : locations){
                     int index = locations.indexOf(location);
                     char letter = txt.charAt(index);
+
+                    if(DEBUG_MODE) Bukkit.getServer().getConsoleSender().sendMessage(color("&8[&cParticleDebug&8] &7Index: &c" + index + " &7Letter: &c" + letter));
+                    if(letter == ' ') continue;
                     generateType(location, letter, index);
                 }
                 timePerLetter--;
@@ -131,14 +94,11 @@ public class TextParticle {
     public List<Location> getLocations(Location origin) {
         try {
             List<Location> locations = new ArrayList<>();
-            double totalWidth;
-            if(text != null) totalWidth = 1 + (text.replaceAll(" ", "").length() * 5 + (spaceLetters * text.length()));
-            else totalWidth = 1 + (letters.stream().filter(a -> a.getLetter() != ' ').count() * 5 + (spaceLetters * letters.size()));
-
+            double totalWidth = 1 + (letters.size() * 5 + (spaceLetters * letters.size()));
             double leftMost = totalWidth / -2;
             int separation = 0;
-            for (int i = 0; i < (text != null ? text.length() : letters.size()); i++) {
-                char letter = text != null ? text.charAt(i) : letters.get(i).getLetter();
+            for (Letter value : letters) {
+                char letter = value.getLetter();
                 if (letter == ' ') {
                     separation += this.spaceLetters;
                     continue;
@@ -146,6 +106,8 @@ public class TextParticle {
                 separation += this.spaceLetters;
                 double x = leftMost + separation;
                 locations.add(new Location(world, origin.getX() + x, origin.getY(), origin.getZ()));
+
+                if(DEBUG_MODE) Bukkit.getServer().getConsoleSender().sendMessage(color("&8[&cParticleDebug&8] &7Letter: &c" + letter + " &7Location: &c" + x));
             }
             return locations;
         } catch (Exception e) {
@@ -167,12 +129,11 @@ public class TextParticle {
             Vector up = new Vector(0, lengthLines, 0);
             origin.clone().add(offset);
             Location location = new Location(world, origin.getX(), origin.getY(), origin.getZ()).add(offset).subtract(0.5, 0, 0.5);
-
             for (int i = 0; i < pattern.length; i++) {
                 for (int j = 0; j < pattern[i].length; j++) {
                     if (pattern[i][j] == 1) {
                         Location particleLoc = new Location(world, location.getX(), location.getY(), location.getZ()).add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
-                        world.spawnParticle(Particle.REDSTONE, particleLoc, 3, 0, 0, 0, 1, new Particle.DustOptions(text != null ? color : letters.get(index).getColor(), 3));
+                        world.spawnParticle(Particle.REDSTONE, particleLoc, 3, 0, 0, 0, 1, new Particle.DustOptions(lettersNotSpaces.get(index).getColor(), 3));
                     }
                 }
             }
@@ -189,13 +150,8 @@ public class TextParticle {
 
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
-        if(text != null) {
-            json.put("text", text);
-            json.put("color", MathsUtils.colorToJson(color));
-        }else{
-            String letters = this.letters.stream().map(letter -> "&" + ColorValue.colorToChar(letter.getColor()) + letter.getLetter()).collect(Collectors.joining());
-            json.put("text", letters);
-        }
+        String letters = this.letters.stream().map(letter -> "&" + ColorValue.colorToChar(letter.getColor()) + letter.getLetter()).collect(Collectors.joining());
+        json.put("text", letters);
         json.put("timePerLetter", timePerLetter);
         json.put("lengthLines", lengthLines);
         json.put("spaceLetters", spaceLetters);

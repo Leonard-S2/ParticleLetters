@@ -4,12 +4,13 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.me.leo_s.particleletterns.ParticleLetters;
-import org.me.leo_s.particleletterns.components.builders.maths.ColorValue;
+
+import static org.me.leo_s.particleletterns.components.FileOutput.*;
+import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
 public class PlayerAsyncChatEvent implements Listener{
 
@@ -26,31 +27,26 @@ public class PlayerAsyncChatEvent implements Listener{
             if (message.equals("cancel")) {
                 event.setCancelled(true);
                 plugin.removeTextSession(player);
-                player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have canceled the edit."));
+                player.sendMessage(Component.text(color(EDITOR_CANCEL)));
             } else {
                 event.setCancelled(true);
                 try {
                     switch (editing) {
-                        case "text" -> {;
+                        case "text" -> {
                             plugin.addTextSession(player, message);
-                            player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the text."));
+                            player.sendMessage(Component.text(color(EDITOR_TEXT)));
                         }
                         case "duration" -> {
                             plugin.getTextSession(player).setTimePerLetter(Integer.parseInt(message));
-                            player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the duration."));
-                        }
-                        case "color" -> {
-                            int[] rgb = ColorValue.fromStringBukkit(message.toUpperCase());
-                            plugin.getTextSession(player).setColor(Color.fromRGB(rgb[0], rgb[1], rgb[2]));
-                            player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the color."));
+                            player.sendMessage(Component.text(color(EDITOR_DURATION)));
                         }
                         case "lines" -> {
                             plugin.getTextSession(player).setLengthLines(Double.parseDouble(message));
-                            player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the lines."));
+                            player.sendMessage(Component.text(color(EDITOR_LINES)));
                         }
                         case "spacing" -> {
                             plugin.getTextSession(player).setSpaceLetters(Double.parseDouble(message));
-                            player.sendMessage(Component.text("§8[§cParticleLetters§8] §7You have edited the spacing."));
+                            player.sendMessage(Component.text(color(EDITOR_SPACING)));
                         }
                     }
                     Bukkit.getScheduler().runTaskLater(plugin, () -> plugin.getEditorTextInterface().open(player, plugin.getTextSession(player)), 1);
