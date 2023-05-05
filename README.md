@@ -52,27 +52,6 @@ ParticleLettersAPI.ParticleLettersAPI(String text, Location loc, int timePerLett
      * @param spaceLetters The size that each space will have if the text has one
      */
     void generateTextFromColorString(@NotNull String text, @NotNull Location origen, int timePerLetter, double lengthLines, double spaceLetters);
-    void generateText(@NotNull TextParticle textParticle, @NotNull Location origen);
-    /**
-     * @param textParticle The text to be forced to stop
-     */
-    void forceStopText(@NotNull TextParticle textParticle);
-    /**
-     * @param name The name of the text to be obtained
-     */
-    TextParticle getTextParticle(@NotNull String name);
-    /**
-     * @param name The name of the text to be removed
-     */
-    void removeTextParticle(@NotNull String name);
-    /**
-     * @param letter The character of the letter
-     */
-    byte[][] getLetter(char letter);
-    /**
-     * @param letter The character of the letter
-     */
-    byte[][] invertLetter(char letter);
      
 **Credits**
 
