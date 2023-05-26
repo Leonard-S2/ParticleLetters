@@ -34,8 +34,7 @@ public class TextParticle {
      * @param timePerLetter The time it takes to display the text, in seconds
      * @param lengthLines The length of the lines that make up the text
      * @param spaceLetters The size that each space will have if the text has one
-     * <p>
-     * <p>
+     * @apiNote
      * <p>
      * Other parameters are not required:
      * <p>
@@ -125,6 +124,7 @@ public class TextParticle {
     public void generateType(Location origin, char letter, int index){
         try {
             byte[][] pattern = lettersNeedInvert.contains(letter) ? invertLetter(letter) : getLetter(letter);
+            if (pattern == null) return;
             Vector offset = new Vector(spaceLetters * index, 0, 0);
             Vector up = new Vector(0, lengthLines, 0);
             origin.clone().add(offset);
@@ -134,6 +134,25 @@ public class TextParticle {
                     if (pattern[i][j] == 1) {
                         Location particleLoc = new Location(world, location.getX(), location.getY(), location.getZ()).add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
                         world.spawnParticle(Particle.REDSTONE, particleLoc, 3, 0, 0, 0, 1, new Particle.DustOptions(lettersNotSpaces.get(index).getColor(), 3));
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void generateType(Location origin, byte[][] pattern, double lengthLines){
+        try {
+            World world = origin.getWorld();
+            if(world == null) return;
+            Vector up = new Vector(0, lengthLines, 0);
+            Location location = new Location(world, origin.getX(), origin.getY(), origin.getZ()).subtract(0.5, 0, 0.5);
+            for (int i = 0; i < pattern.length; i++) {
+                for (int j = 0; j < pattern[i].length; j++) {
+                    if (pattern[i][j] == 1) {
+                        Location particleLoc = new Location(world, location.getX(), location.getY(), location.getZ()).add(up.clone().multiply(i)).add(new Vector(j, 0, 0));
+                        world.spawnParticle(Particle.REDSTONE, particleLoc, 3, 0, 0, 0, 1, new Particle.DustOptions(Color.GREEN, 3));
                     }
                 }
             }
@@ -185,6 +204,15 @@ public class TextParticle {
      */
     public static byte[][] invertLetter(char letter) {
         byte[][] matrix = getLetter(letter);
+        if(matrix == null) return null;
+        byte[][] invertedMatrix = new byte[matrix.length][matrix[0].length];
+        for (int row = 0; row < matrix.length; row++) {
+            System.arraycopy(matrix[matrix.length - 1 - row], 0, invertedMatrix[row], 0, matrix[0].length);
+        }
+        return invertedMatrix;
+    }
+    public static byte[][] invertLetter(byte[][] matrix) {
+        if(matrix == null) return null;
         byte[][] invertedMatrix = new byte[matrix.length][matrix[0].length];
         for (int row = 0; row < matrix.length; row++) {
             System.arraycopy(matrix[matrix.length - 1 - row], 0, invertedMatrix[row], 0, matrix[0].length);

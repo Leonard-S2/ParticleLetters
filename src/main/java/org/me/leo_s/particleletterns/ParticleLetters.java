@@ -16,8 +16,9 @@ import org.me.leo_s.particleletterns.components.interfaces.EditorTextInterface;
 import org.me.leo_s.particleletterns.components.text.TextParticle;
 import org.me.leo_s.particleletterns.components.text.TextSession;
 
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,22 +27,27 @@ import java.util.Objects;
 import static org.me.leo_s.particleletterns.components.FileOutput.loadFileOutput;
 import static org.me.leo_s.particleletterns.components.builders.maths.MathsUtils.color;
 
-@SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
+@SuppressWarnings({"unused", "ResultOfMethodCallIgnored", "deprecation", "FieldCanBeLocal"})
 public final class ParticleLetters extends JavaPlugin implements ParticleLettersAPI {
 
     private static ParticleLetters instance;
     private static final Map<Player, TextSession> textSessions = new HashMap<>();
     private static final Map<Player, String> editing = new HashMap<>();
     private static final Map<String, TextParticle> textParticles = new HashMap<>();
+    private static Map<String, byte[][]> customPatterns = new HashMap<>();
     private static EditorTextInterface editorTextInterface;
+    private String version;
     @Override
     public void onEnable() {
         // Plugin startup logic
         instance = this;
+        version = getDescription().getVersion();
         editorTextInterface = new EditorTextInterface(color("&8[&6ParticleLetters&8] &7Editor"));
         Objects.requireNonNull(getCommand("particleletters")).setExecutor(new CommandExtend());
         registerListeners(new PlayerAsyncChatEvent(), new PlayerClickInventoryEvent(),
         new PlayerPreviewEvent());
+
+        spigotUpdater();
         loadTexts();
         loadFileOutput(true);
     }
@@ -53,19 +59,27 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
         }
 
         File[] files = file.listFiles();
-        if(files == null) return;
-        for(File f : files) {
-            if(f.getName().endsWith(".json")) {
-                String name = f.getName().replace(".json", "");
-                try {
-                    FileReader reader = new FileReader(f);
-                    addTextParticle(name.replace("_", " "), MathsUtils.loadTextFromJson(reader));
-                } catch (Exception textFormattedInvalid) {
-                    getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7The text §c" + name + " §7could not be loaded.");
+        if(files != null) {
+            for (File f : files) {
+                if (f.getName().endsWith(".json")) {
+                    String name = f.getName().replace(".json", "");
+                    try {
+                        FileReader reader = new FileReader(f);
+                        addTextParticle(name.replace("_", " "), MathsUtils.loadTextFromJson(reader));
+                    } catch (Exception textFormattedInvalid) {
+                        getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7The text §c" + name + " §7could not be loaded.");
+                    }
                 }
             }
         }
+
+        file = new File(getDataFolder() + File.separator + "customPatterns.yml");
+        if(!file.exists()) {
+            saveResource("customPatterns.yml", false);
+        }
+        customPatterns = MathsUtils.loadCustomPatterns(file);
         getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7Loaded §c" + textParticles.size() + " §7texts.");
+        getServer().getConsoleSender().sendMessage("§8[§cParticleLetters§8] §7Loaded §c" + customPatterns.size() + " §7custom patterns.");
     }
 
     @Override
@@ -119,6 +133,9 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     public Map<String, TextParticle> getTextParticles() {
         return textParticles;
     }
+    public Map<String, byte[][]> getCustomPatterns() {
+        return customPatterns;
+    }
 
     @Override
     public TextParticle getTextParticle(@NotNull String name) {
@@ -147,6 +164,20 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     }
 
     @Override
+    public void generateLetterOrCustomPattern(@NotNull Location origin, byte[] @NotNull [] pattern, double lengthLines, boolean isCustomPattern) throws TextFormattedInvalid {
+        if(!isCustomPattern) {
+            if(!MathsUtils.isPatternValid(pattern)) {
+                throw new TextFormattedInvalid("&7The pattern is not valid.");
+            }
+        }else{
+            if(!MathsUtils.isCustomPatternValid(pattern)) {
+                throw new TextFormattedInvalid("&7The custom pattern is not valid.");
+            }
+        }
+        TextParticle.generateType(origin, pattern, lengthLines);
+    }
+
+    @Override
     public void forceStopText(@NotNull TextParticle textParticle) {
         textParticle.cancelTask();
     }
@@ -164,5 +195,27 @@ public final class ParticleLetters extends JavaPlugin implements ParticleLetters
     @Override
     public byte[][] invertLetter(char letter) {
         return TextParticle.invertLetter(letter);
+    }
+
+    @Override
+    public byte[][] getCustomPattern(String name) {
+        return customPatterns.get(name);
+    }
+
+    private void spigotUpdater(){
+        try {
+            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=109640");
+            URLConnection connection = url.openConnection();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String version = reader.readLine();
+            if(!this.version.equals(version)) {
+                getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &7There is a new version available: &c" + version));
+                getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &7Download it here: &chttps://www.spigotmc.org/resources/particleletters.109640/"));
+            }else{
+                getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &7You are using the latest version."));
+            }
+        } catch (IOException e) {
+            getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] &7Could not check for updates."));
+        }
     }
 }

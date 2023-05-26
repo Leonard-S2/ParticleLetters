@@ -4,18 +4,20 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.me.leo_s.particleletterns.components.exceptions.TextFormattedInvalid;
 import org.me.leo_s.particleletterns.components.text.TextParticle;
 
+import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.me.leo_s.particleletterns.components.FileOutput.DEBUG_MODE;
+import static org.me.leo_s.particleletterns.components.text.TextParticle.invertLetter;
 
 public class MathsUtils {
     public static String color(String string) {
@@ -56,6 +58,12 @@ public class MathsUtils {
     public static String clearVanillaText(String text) {
         return text.replaceAll("&[A-Za-z0-9]", "").replaceAll(" ", "_");
     }
+
+    /**
+     * @param text The text to get the letters from.
+     * @return A list of letters from the text.
+     * @apiNote This method is not recommended for use, it is only used for debugging.
+     */
     public static List<TextParticle.Letter> getLettersForEachImpl(String text) {
         List<TextParticle.Letter> letters = new ArrayList<>();
         char letterChar;
@@ -115,6 +123,11 @@ public class MathsUtils {
         return hex;
     }
 
+    /**
+     * @param group the group to convert
+     * @return the converted group
+     * @apiNote The group must be a valid hex color
+     */
     private static CharSequence hexToMinecraftColor(String group) {
         StringBuilder builder = new StringBuilder();
         builder.append("§x");
@@ -123,5 +136,81 @@ public class MathsUtils {
             builder.append("§").append(c);
         }
         return builder.toString();
+    }
+
+    /**
+     * @param pattern the pattern to check
+     * @return true if the pattern is valid, false if not
+     * @apiNote The pattern must be a 7x5 matrix and the value of each cell must be 0 or 1
+     */
+    public static boolean isPatternValid(byte[][] pattern) {
+        if (pattern.length != 7) return false;
+        for (byte[] bytes : pattern) {
+            if (bytes.length != 5) return false;
+            for (byte aByte : bytes) {
+                if (aByte != 0 && aByte != 1) return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param pattern the pattern to check
+     * @return true if the pattern is valid, false if not
+     * @apiNote The matrix of this pattern doesn't matter the size, but the value of each cell must be 0 or 1
+     */
+    public static boolean isCustomPatternValid(byte[][] pattern) {
+        for (byte[] bytes : pattern) {
+            for (byte aByte : bytes) {
+                if (aByte != 0 && aByte != 1) return false;
+            }
+        }
+        return true;
+    }
+
+    public static Map<String, byte[][]> loadCustomPatterns(File file) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        Map<String, byte[][]> patterns = new HashMap<>();
+
+        for (String key : config.getKeys(false)) {
+            List<String> stringList = config.getStringList(key);
+            byte[][] pattern = new byte[stringList.size()][];
+            String error = "-1";
+
+            for (int i = 0; i < stringList.size(); i++) {
+                String string = stringList.get(i).replaceAll("[\\[\\] ]", "");
+                String[] split = string.split(",");
+                byte[] bytes = new byte[split.length];
+
+                for (int j = 0; j < split.length; j++) {
+                    String s = split[j];
+
+                    try {
+                        byte b = Byte.parseByte(s);
+
+                        if (b != 0 && b != 1) {
+                            error = (i + 1) + "," + (j + 1);
+                            break;
+                        }
+
+                        bytes[j] = b;
+                    } catch (NumberFormatException e) {
+                        error = (i + 1) + "," + (j + 1);
+                        break;
+                    }
+                }
+
+                pattern[i] = bytes;
+            }
+
+            if (error.equals("-1")) {
+                patterns.put(key, invertLetter(pattern));
+            } else {
+                Bukkit.getServer().getConsoleSender().sendMessage(color("&8[&cParticleLetters&8] The pattern &c" + key + " &7is invalid. " + "&7The error " +
+                        "is in the row &c[" + error.split(",")[0] + "] &7and column &c[" + error.split(",")[1] + "]&7."));
+            }
+        }
+
+        return patterns;
     }
 }

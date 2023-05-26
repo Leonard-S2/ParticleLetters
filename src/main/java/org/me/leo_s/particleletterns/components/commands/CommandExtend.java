@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.me.leo_s.particleletterns.components.commands.list.CommandGenerateText;
 import org.me.leo_s.particleletterns.components.commands.list.CommandReload;
+import org.me.leo_s.particleletterns.components.commands.list.CommandSpawnCustomText;
 import org.me.leo_s.particleletterns.components.commands.list.CommandSpawnText;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class CommandExtend implements CommandExecutor, TabExecutor {
         commands.add(new CommandGenerateText());
         commands.add(new CommandSpawnText());
         commands.add(new CommandReload());
+        commands.add(new CommandSpawnCustomText());
     }
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
