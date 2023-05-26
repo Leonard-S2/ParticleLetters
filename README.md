@@ -11,7 +11,7 @@ Make sure the ParticleLetters plugin is installed and enabled on your Minecraft 
 Add the following line to the dependencies section of your pom.xml file:
 
 **Copy code for Maven**
-
+```xml
 	<repositories>
 		<repository>
 		    <id>jitpack.io</id>
@@ -24,9 +24,10 @@ Add the following line to the dependencies section of your pom.xml file:
 	    <artifactId>ParticleLetters</artifactId>
 	    <version>Tag</version>
 	</dependency>
+```
   
 **Copy code for Gradle**
-
+```groovy
   	repositories {
 			...
 			maven { url 'https://jitpack.io' }
@@ -35,6 +36,7 @@ Add the following line to the dependencies section of your pom.xml file:
   	dependencies {
 	        implementation 'com.github.Leonardo-shitp:ParticleLetters:Tag'
 	}
+```
 
 **Copy code**
 
@@ -42,7 +44,7 @@ ParticleLettersAPI.generateText("Hello, world!", Location, 10, Color, 0.9, 2.9);
 This example will generate the message "Hello world!" in the "Location" location. The color of the particles will be "Color", with a duration of 10 seconds, the size of the lines will be 0.9 and the size of the spaces between the letters will be 2.9 if the message contains any space.
 
 **Methods**
-
+```java
     /**
      * @param text The text to be generated
      * @param timePerLetter The time it takes to display the text, in seconds
@@ -108,6 +110,7 @@ This example will generate the message "Hello world!" in the "Location" location
      * @apiNote The custom pattern will be obtained in the location where the player is
      */
     byte[][] getCustomPattern(String name);
+    ```
      
 **Credits**
 
