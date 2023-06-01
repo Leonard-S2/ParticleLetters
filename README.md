@@ -78,34 +78,29 @@ This example will generate the message "Hello world!" in the "Location" location
     /**
      * @param name The name of the text to be obtained
      * @return The text with the name
-     * @apiNote The text will be obtained in the location where the player is
      */
     TextParticle getTextParticle(@NotNull String name);
     
     /**
      * @param name The name of the text to be removed
-     * @apiNote The text will be removed in the location where the player is
      */
     void removeTextParticle(@NotNull String name);
     
     /**
      * @param letter The character of the letter
      * @return The pattern of the letter
-     * @apiNote The letter will be obtained in the location where the player is
      */
     byte[][] getLetter(char letter);
     
     /**
      * @param letter The character of the letter
      * @return The inverted pattern of the letter
-     * @apiNote The letter will be obtained in the location where the player is
      */
     byte[][] invertLetter(char letter);
     
     /**
      * @param name The name of the custom pattern to be obtained
      * @return The custom pattern with the name
-     * @apiNote The custom pattern will be obtained in the location where the player is
      */
     byte[][] getCustomPattern(String name);
 ```
